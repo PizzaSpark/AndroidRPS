@@ -1,5 +1,6 @@
 package com.example.cc10624rockpaperscissors;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.drawable.AnimationDrawable;
@@ -15,13 +16,14 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView lblScoreYou, lblScoreCom;
+    private TextView lblScoreYou, lblScoreCom, lblRound;
     private ImageView imgYou, imgCom;
     private RadioButton rbRock, rbPaper, rbScissors;
     private Button btnReset, btnBet, btnClose;
 
     private int[] scores = {0, 0};
     int you = 0;
+    int round = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,23 +39,31 @@ public class MainActivity extends AppCompatActivity {
         btnReset = findViewById(R.id.btnReset);
         btnBet = findViewById(R.id.btnBet);
         btnClose = findViewById(R.id.btnClose);
+        lblRound = findViewById(R.id.lblRound);
 
         imgYou.setImageResource(R.drawable.rock);
         imgCom.setImageResource(R.drawable.rock);
 
         // Set the initial score
-        lblScoreYou.setText("You: " + scores[0]);
-        lblScoreCom.setText("Com: " + scores[1]);
+        lblScoreYou.setText("Score: " + scores[0]);
+        lblScoreCom.setText("Score: " + scores[1]);
+
+        lblRound.setText("Round: " + round);
 
         // Set the event listener for the reset button
         btnReset.setOnClickListener(v -> {
             scores[0] = 0;
             scores[1] = 0;
+            round = 1;
             lblScoreYou.setText("You: " + scores[0]);
             lblScoreCom.setText("Com: " + scores[1]);
+            lblRound.setText("Round: " + round);
+
+            btnBet.setEnabled(true);
         });
 
         btnBet.setOnClickListener(v -> {
+            btnBet.setEnabled(false);
             if (rbRock.isChecked()) {
                 you = 0;
                 imgYou.setImageResource(R.drawable.rock);
@@ -73,11 +83,11 @@ public class MainActivity extends AppCompatActivity {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    if (count[0] < 25) {
+                    if (count[0] < 10) {
                         int imageId = images[new Random().nextInt(images.length)];
                         imgCom.setImageResource(imageId);
                         count[0]++;
-                        handler.postDelayed(this, 100);
+                        handler.postDelayed(this, 80);
                     } else {
                         // After cycling 10 times, make the final choice for the computer
                         int com = (int) (Math.random() * 3);
@@ -114,6 +124,19 @@ public class MainActivity extends AppCompatActivity {
                         }
                         lblScoreYou.setText("Score: " + scores[0]);
                         lblScoreCom.setText("Score: " + scores[1]);
+                        btnBet.setEnabled(true);
+                        if (scores[1] == 10) {
+                            // Show modal that computer wins
+                            showMessage("YOU LOST", "COMPUTER WINS");
+                            btnBet.setEnabled(false);
+                        } else if (scores[0] == 10) {
+                            // Show modal that you win
+                            showMessage("YOU WIN", "CONGRATULATIONS");
+                            btnBet.setEnabled(false);
+                        } else {
+                            round++;
+                            lblRound.setText("Round: " + round);
+                        }
                     }
                 }
             };
@@ -128,5 +151,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void showToast(String message) {
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showMessage(String title, String message) {
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .setIcon(android.R.drawable.btn_star)
+                .show();
     }
 }
