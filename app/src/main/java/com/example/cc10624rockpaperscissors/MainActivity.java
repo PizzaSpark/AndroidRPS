@@ -2,6 +2,7 @@ package com.example.cc10624rockpaperscissors;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
@@ -63,6 +64,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnBet.setOnClickListener(v -> {
+
+            if (!isRadioButtonChecked()) {
+                return;
+            }
+
+
             btnBet.setEnabled(false);
             if (rbRock.isChecked()) {
                 you = 0;
@@ -103,33 +110,51 @@ public class MainActivity extends AppCompatActivity {
                         if (you == com) {
                             // Draw
                             showToast("Draw");
+                            //set both score text to blue
+                            setScoreTextColor(lblScoreYou, R.color.blue);
+                            setScoreTextColor(lblScoreCom, R.color.blue);
                         } else if (you == 0 && com == 1) {
                             scores[1]++;
                             showToast("You lose");
+                            setScoreTextColor(lblScoreYou, R.color.red);
+                            setScoreTextColor(lblScoreCom, R.color.green);
                         } else if (you == 0 && com == 2) {
                             scores[0]++;
                             showToast("You win");
+                            setScoreTextColor(lblScoreYou, R.color.green);
+                            setScoreTextColor(lblScoreCom, R.color.red);
                         } else if (you == 1 && com == 0) {
                             scores[0]++;
                             showToast("You win");
+                            setScoreTextColor(lblScoreYou, R.color.green);
+                            setScoreTextColor(lblScoreCom, R.color.red);
                         } else if (you == 1 && com == 2) {
                             scores[1]++;
                             showToast("You lose");
+                            setScoreTextColor(lblScoreYou, R.color.red);
+                            setScoreTextColor(lblScoreCom, R.color.green);
                         } else if (you == 2 && com == 0) {
                             scores[1]++;
                             showToast("You lose");
+                            setScoreTextColor(lblScoreYou, R.color.red);
+                            setScoreTextColor(lblScoreCom, R.color.green);
                         } else if (you == 2 && com == 1) {
                             scores[0]++;
                             showToast("You win");
+                            setScoreTextColor(lblScoreYou, R.color.green);
+                            setScoreTextColor(lblScoreCom, R.color.red);
                         }
                         lblScoreYou.setText("Score: " + scores[0]);
                         lblScoreCom.setText("Score: " + scores[1]);
+
+                        uncheckRadioButtons();
+
                         btnBet.setEnabled(true);
-                        if (scores[1] == 10) {
+                        if (scores[1] == 5) {
                             // Show modal that computer wins
                             showMessage("YOU LOST", "COMPUTER WINS");
                             btnBet.setEnabled(false);
-                        } else if (scores[0] == 10) {
+                        } else if (scores[0] == 5) {
                             // Show modal that you win
                             showMessage("YOU WIN", "CONGRATULATIONS");
                             btnBet.setEnabled(false);
@@ -149,6 +174,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void uncheckRadioButtons() {
+        rbRock.setChecked(false);
+        rbPaper.setChecked(false);
+        rbScissors.setChecked(false);
+    }
+
+    private void setScoreTextColor(TextView lbl, int color) {
+        lbl.setTextColor(ContextCompat.getColor(MainActivity.this, color));
+    }
+
+    private boolean isRadioButtonChecked() {
+        if (rbRock.isChecked() || rbPaper.isChecked() || rbScissors.isChecked()) {
+            return true;
+        } else {
+            Toast.makeText(MainActivity.this, "Please select Rock, Paper, or Scissors", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
+
     private void showToast(String message) {
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
     }
@@ -158,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, null)
-                .setIcon(android.R.drawable.btn_star)
                 .show();
     }
 }
